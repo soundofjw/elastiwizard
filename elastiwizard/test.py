@@ -13,7 +13,7 @@ def test_parse():
     assert question['field'] == "requests"
     assert question['delta'] == "since 2015-07-07"
     assert question['where'] == "researched"
-    assert question['group_by'] == "user/FDwlkfw"
+    assert question['group_by'] == "user/yPyA5n7P"
 
 
 def test_transform():
@@ -21,7 +21,7 @@ def test_transform():
 
     terms_map = {
         'researched': '!needs_license_research',
-        'requests': 'researcehd_by',
+        'requests': 'researched_by',
         '*default_date_field': 'license_fulfilled_at'
     }
 
@@ -33,6 +33,8 @@ def test_transform():
     query = TransformQuestion.transform(grammar_builder, test_question_1,
         terms_map=terms_map, group_by_validator=group_by_validator)
 
-    print json.dumps(query, indent=4)
+    json_query = json.dumps(query, indent=4, sort_keys=True)
 
-    assert False
+    print json_query
+    assert json_query
+
