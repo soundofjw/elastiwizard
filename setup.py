@@ -3,6 +3,7 @@ from os import path
 
 from elastiwizard import __version__ as ew_version
 
+dependencies = [i.strip() for i in open("requirements.txt").readlines()]
 
 setup(
     name="Elastiwizard",
@@ -13,4 +14,5 @@ setup(
     license="MIT License",
     url="https://github.com/ammoses89/elastiwizard",
     packages=find_packages(),
+    install_requires=dependencies
 )
