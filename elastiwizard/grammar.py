@@ -3,14 +3,21 @@ class GrammarBuilder(object):
 
     def __init__(self, **options):
        self.grammar = """\
-        question = metric sep field (sep delta)? (sep where)? (sep by sep group_by)?
-        sep = ws
-        ws = " "*
-        metric = ~"[A-z]*"
-        field = ~"[A-z]*"
-        delta = ~"\w*\s\d*-\d*-\d."*
-        where = ~"[A-z]"*
-        group_by = ~"[A-z0-9 ,.'-/]"*
+       question = metric space index (space delta)? (space where)? (space by space group_by)?
+
+        space = ~"\s*"
+        string = ~"[A-z]"
+        number = ~"[0-9]"
+        date = ~"[A-z0-9,.'-/]"
+        value = (string / number / date)
+
+        metric = string*
+        index = string*
+        delta = deltastring space date* (space deltastring space date*)?
+        deltastring = "since" / "from" / "to" / "each"
+        where = string*
+        values = value+
+        group_by = values*
         by = "by"*
         """
 

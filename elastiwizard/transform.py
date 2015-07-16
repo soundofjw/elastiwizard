@@ -146,10 +146,12 @@ class TransformQuestion(object):
         options = {}
 
         options['metric'] = transformer.transform_metric(question['metric'])
-        options['field'] = transformer.transform_metric_field(question['field'])
+        options['field'] = transformer.transform_metric_field(question['index'])
 
         if question.get('delta'):
             options['delta'] = transformer.transform_delta(question['delta'])
+
+        print options['delta']
 
         if question.get('where'):
             options['filters'] = transformer.transform_where(question['where'])
