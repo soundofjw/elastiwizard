@@ -17,6 +17,9 @@ class ElastiwizardParser(NodeVisitor):
     def visit_index(self, n, vc):
         self.question['index'] = n.text
 
+    def visit_field(self, n, vc):
+        self.question['field'] = n.text
+
     def visit_delta(self, n, vc):
         self.question['delta'] = n.text
 

@@ -5,6 +5,17 @@ from query import SearchAggregationBuilder
 import types
 import datetime
 
+WEEKDAYS = {
+    'monday': 0,
+    'tuesday': 1,
+    'wednesday': 2,
+    'thursday': 3,
+    'friday': 4,
+    'saturday': 5,
+    'sunday': 6,
+}
+
+
 class TransformQuestion(object):
 
     def __init__(self, grammar_builder, terms_map=None,
@@ -38,6 +49,14 @@ class TransformQuestion(object):
             return string.replace(' ', '*').split('%s*'%(term), 1)[1:][0]\
                 .split('*',1)[0]
 
+        def find_date(date_string):
+            day = datetime.datetime.now().date()
+            if day.weekday() == WEEKDAYS[date_string]:
+                return day
+            else:
+                return day - datetime.timedelta(
+                    days=(day.weekday() - WEEKDAYS[date_string] - 1) % 7 + 1)
+
         from_date = None
 
         if 'each' in delta_string:
@@ -59,10 +78,18 @@ class TransformQuestion(object):
 
         if 'since' in delta_string:
             date_string = _get_substr_by_term(delta_string, 'since')
-            from_date = datetime.datetime.strptime(date_string, dateformat).date()
+            if date_string in WEEKDAYS:
+                from_date = find_date(date_string)
+            else:
+                from_date = datetime.datetime.strptime(
+                    date_string, dateformat).date()
 
         if not date_field:
-            date_field = self.terms_map.get('*default_date_field', "created_at")
+            try:
+                date_field = self.terms_map['delta'].get('date_field',
+                    "created_at")
+            except KeyError:
+                date_field = 'created_at'
 
         return  {
             'interval': interval,
@@ -76,21 +103,30 @@ class TransformQuestion(object):
         have support for "not" or ! syntax as well
         """
         filter_terms = where.split("and")
+        where_term_map = self.terms_map.get('where', {})
 
-        filters = {}
-        for f in filter_terms:
+        filter_map = {}
+        for field in filter_terms:
             value = "1"
-            f = f.strip()
+            field = field.strip()
 
-            if f in self.terms_map.keys():
-               f = self.terms_map.get(f)
-               if f.startswith("!"):
-                    value = "0"
-                    f = f[1:]
+            if field in where_term_map.keys():
+                field = where_term_map.get(field, {})
+                if field.get('filters'):
+                    filters = field['filters']
+                    if isinstance(filters, basestring):
+                        f = filters
+                        if f.startswith("!"):
+                            value = "0"
+                            f = f[1:]
+                    elif isinstance(filters, list):
+                        # TODO too lazy to do it now, sorry
+                        continue
+                    else:
+                        continue
 
-            filters[f] = value # what about "not" ?
-
-        return filters
+                    filter_map[f] = value
+        return filter_map
 
     def transform_metric(self, metric_term):
         """map term to metric"""
@@ -107,8 +143,13 @@ class TransformQuestion(object):
 
     def transform_metric_field(self, metric_field):
         """map the metric field somehow"""
-        if metric_field in self.terms_map.keys():
-            metric_field = self.terms_map.get(metric_field)
+
+        field_map = self.terms_map.get('field', {})
+
+        if metric_field and metric_field in field_map.keys():
+            metric_field = field_map.get(metric_field)
+        elif not metric_field:
+            metric_field = field_map.get('default', 'title')
 
         return metric_field
 
@@ -122,15 +163,21 @@ class TransformQuestion(object):
         """
 
         filter_dict = None
-        if self.group_by_validator and \
-            isinstance(self.group_by_validator, types.FunctionType):
-            new_string = self.group_by_validator(group_by_string)
-
-            if new_string:
-                filter_dict = {
-                    new_string: group_by_string
-                }
-                group_by_string = new_string
+        if self.terms_map.get('group_by'):
+            group_by_map = self.terms_map['group_by']
+            for k in group_by_map:
+                if k.endswith('*') and group_by_string.startswith(k[:-1]):
+                    filter_dict = {
+                        group_by_map[k]: group_by_string
+                    }
+                    group_by_string = group_by_map[k]
+                    break
+                elif group_by_string == k:
+                    filter_dict = {
+                        group_by_map[k]: group_by_string
+                    }
+                    group_by_string = group_by_map[k]
+                    break
 
         return group_by_string, filter_dict
 
@@ -143,15 +190,18 @@ class TransformQuestion(object):
         if just_parse:
             return question
 
+        # update terms map to index
+        transformer.terms_map = terms_map[question['index']]
+
         options = {}
 
         options['metric'] = transformer.transform_metric(question['metric'])
-        options['field'] = transformer.transform_metric_field(question['index'])
+        options['field'] = transformer.transform_metric_field(
+            question.get('field'))
 
         if question.get('delta'):
             options['delta'] = transformer.transform_delta(question['delta'])
-
-        print options['delta']
+            print options['delta']
 
         if question.get('where'):
             options['filters'] = transformer.transform_where(question['where'])

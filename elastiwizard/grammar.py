@@ -3,7 +3,7 @@ class GrammarBuilder(object):
 
     def __init__(self, **options):
        self.grammar = """\
-       question = metric space index (space delta)? (space where)? (space by space group_by)?
+       question = metric space (the space field space of space)? (index) (space where)? (space by space group_by)? (space delta)?
 
         space = ~"\s*"
         string = ~"[A-z]"
@@ -13,12 +13,15 @@ class GrammarBuilder(object):
 
         metric = string*
         index = string*
+        field = string*
         delta = deltastring space date* (space deltastring space date*)?
         deltastring = "since" / "from" / "to" / "each"
         where = string*
         values = value+
         group_by = values*
-        by = "by"*
+        by = "by"+
+        the = "the"+
+        of = "of"+
         """
 
 
