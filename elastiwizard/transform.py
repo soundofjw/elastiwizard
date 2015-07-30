@@ -183,7 +183,7 @@ class TransformQuestion(object):
 
     @classmethod
     def transform(cls, grammar, text, terms_map={}, group_by_validator=None,
-        just_parse=False):
+        just_parse=False, return_parsed_question=False):
 
         transformer = cls(grammar, terms_map, group_by_validator)
         question = transformer.parse(text)
@@ -220,4 +220,7 @@ class TransformQuestion(object):
         q = SearchAggregationBuilder.build_agg_with_query_and_options(
             "", **options)
 
-        return q
+        if return_parsed_question:
+            return q, question
+        else:
+            return q

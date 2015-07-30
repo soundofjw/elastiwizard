@@ -99,13 +99,19 @@ def test_transform():
         }
     }
 
-    query = TransformQuestion.transform(grammar_builder, test_question_1,
-        terms_map=terms_map)
+    query, question = TransformQuestion.transform(grammar_builder, test_question_1,
+        terms_map=terms_map, return_parsed_question=True)
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_1
     print json_query
+
+    assert question['metric'] == "count"
+    assert question['index'] == "requests"
+    assert question['delta'] == "since 2015-07-07"
+    assert question['where'] == "researched"
+    assert question['group_by'] == "user/yPyA5n7P"
 
     query = TransformQuestion.transform(grammar_builder, test_question_2,
         terms_map=terms_map)
@@ -123,8 +129,3 @@ def test_transform():
     assert json_query
     print test_question_3
     print json_query
-
-    assert False
-
-
-
