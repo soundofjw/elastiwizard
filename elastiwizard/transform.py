@@ -201,7 +201,6 @@ class TransformQuestion(object):
 
         if question.get('delta'):
             options['delta'] = transformer.transform_delta(question['delta'])
-            print options['delta']
 
         if question.get('where'):
             options['filters'] = transformer.transform_where(question['where'])
