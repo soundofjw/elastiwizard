@@ -11,7 +11,7 @@ class GrammarBuilder(object):
         date = ~"[A-z0-9,.'-/]"
         value = (string / number / date)
 
-        metric = string*
+        metric = "count" / "how many" / "sum" / "average" / "max" / "min" / "best" / "worst"
         index = string*
         field = string*
         delta = deltastring space date* (space deltastring space date*)?

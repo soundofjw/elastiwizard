@@ -2,7 +2,7 @@ from elastiwizard.transform import TransformQuestion
 from elastiwizard.grammar import GrammarBuilder
 import json
 
-test_question_1 = """count requests researched by user/yPyA5n7P since 2015-07-07"""
+test_question_1 = """how many requests researched by user/yPyA5n7P since 2015-07-07"""
 test_question_2 = """count requests researched by researched_by each day"""
 test_question_3 = """sum the total_length of albums released since friday"""
 
@@ -14,7 +14,7 @@ def test_parse():
     print question
     print test_question_1
 
-    assert question['metric'] == "count"
+    assert question['metric'] == "how many"
     assert question['index'] == "requests"
     assert question['delta'] == "since 2015-07-07"
     assert question['where'] == "researched"
@@ -107,7 +107,7 @@ def test_transform():
     print test_question_1
     print json_query
 
-    assert question['metric'] == "count"
+    assert question['metric'] == "how many"
     assert question['index'] == "requests"
     assert question['delta'] == "since 2015-07-07"
     assert question['where'] == "researched"
