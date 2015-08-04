@@ -4,6 +4,7 @@ from query import SearchAggregationBuilder
 
 import types
 import datetime
+from dateutil.relativedelta import relativedelta
 
 WEEKDAYS = {
     'monday': 0,
@@ -69,6 +70,19 @@ class TransformQuestion(object):
         if 'from' in delta_string:
             date_string = _get_substr_by_term(delta_string, 'from')
             from_date = datetime.datetime.strptime(date_string, dateformat).date()
+        else:
+            # default to 6 months
+            if interval == 'year':
+                from_date = datetime.datetime.now().date() - relativedelta(years=+3)
+            elif interval == 'month':
+                from_date = datetime.datetime.now().date() - relativedelta(months=+6)
+            elif interval == 'week':
+                from_date = datetime.datetime.now().date() - relativedelta(months=+3)
+            elif interval == 'day':
+                from_date = datetime.datetime.now().date() - relativedelta(weeks=+4)
+            else:
+                from_date = datetime.datetime.now().date() - relativedelta(weeks=+4)
+
 
         if 'to' in delta_string:
             date_string = _get_substr_by_term(delta_string, 'to')
@@ -112,7 +126,7 @@ class TransformQuestion(object):
 
             if field in where_term_map.keys():
                 field = where_term_map.get(field, {})
-                if field.get('filters'):
+                if isinstance(field, dict) and field.get('filters'):
                     filters = field['filters']
                     if isinstance(filters, basestring):
                         f = filters
@@ -185,6 +199,8 @@ class TransformQuestion(object):
     def transform(cls, grammar, text, terms_map={}, group_by_validator=None,
         just_parse=False, return_parsed_question=False):
 
+        text = text.strip()
+
         transformer = cls(grammar, terms_map, group_by_validator)
         question = transformer.parse(text)
         if just_parse:
@@ -201,6 +217,7 @@ class TransformQuestion(object):
 
         if question.get('delta'):
             options['delta'] = transformer.transform_delta(question['delta'])
+            print options['delta']
 
         if question.get('where'):
             options['filters'] = transformer.transform_where(question['where'])
