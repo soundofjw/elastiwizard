@@ -81,9 +81,9 @@ terms_map = {
                 'default': 'researched_by'
             },
             'index': [
-                'rdlicenserequest_production',
-                'rdsoundrecording_production',
-                'rdtrack_production'
+                'sound_recording',
+                'track',
+                'license_request'
             ],
             'group_by': {
                 'user/*': 'researched_by',
@@ -118,6 +118,12 @@ def test_parse():
     assert question['delta'] == "since 2015-07-07"
     assert question['where'] == "researched"
     assert question['group_by'] == "user/yPyA5n7P"
+    assert transform_result.get('indices', False)
+    assert transform_result['indices'] == [
+        'sound_recording',
+        'track',
+        'license_request'
+    ]
 
     transform_result = TransformQuestion.transform(grammar_builder,
         test_question_3, terms_map)
