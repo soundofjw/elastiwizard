@@ -19,15 +19,13 @@ WEEKDAYS = {
 
 class TransformQuestion(object):
 
-    def __init__(self, grammar_builder, terms_map=None,
-        group_by_validator=None):
+    def __init__(self, grammar_builder, terms_map=None):
         assert isinstance(grammar_builder, GrammarBuilder), \
             "grammar must be an instance of GrammarBuilder not %s" \
             % (type(GrammarBuilder))
         self.grammar = grammar_builder.grammar
 
         self.terms_map = terms_map or {}
-        self.group_by_validator = group_by_validator
 
     def parse(self, text):
         parsed = ElastiwizardParser(self.grammar, text)
@@ -196,16 +194,12 @@ class TransformQuestion(object):
         return group_by_string, filter_dict
 
     @classmethod
-    def transform(cls, grammar, text, terms_map={}, group_by_validator=None,
-        just_parse=False, return_parsed_question=False):
+    def transform(cls, grammar, text, terms_map={}):
 
         text = text.strip()
 
-        transformer = cls(grammar, terms_map, group_by_validator)
+        transformer = cls(grammar, terms_map)
         question = transformer.parse(text)
-        if just_parse:
-            return question
-
         # update terms map to index
         transformer.terms_map = terms_map[question['index']]
 
@@ -221,10 +215,6 @@ class TransformQuestion(object):
         if question.get('where'):
             options['filters'] = transformer.transform_where(question['where'])
 
-        """
-        researched by user/SJFWEOJ
-        ^ where     ^ group by
-        """
         if question.get("group_by"):
             options['terms'], filter_dict = transformer.transform_group_by(
                 question['group_by'])
@@ -235,7 +225,12 @@ class TransformQuestion(object):
         q = SearchAggregationBuilder.build_agg_with_query_and_options(
             "", **options)
 
-        if return_parsed_question:
-            return q, question
-        else:
-            return q
+        results = {
+            "q": q,
+            "question": text,
+            "parsed_question": question,
+            "indicies": terms_map.get('index', None),
+            "chart_types": ["table", "bar"]
+        }
+
+        return results

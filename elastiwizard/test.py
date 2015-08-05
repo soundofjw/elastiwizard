@@ -42,58 +42,7 @@ test_question_13 = """
     how many usages fulfilled by completed_license_methods since 2015-07-07
 """
 
-def test_parse():
-    grammar_builder = GrammarBuilder()
-    question = TransformQuestion.transform(grammar_builder, test_question_1,
-        just_parse=True)
-
-    print question
-    print test_question_1
-
-    assert question['metric'] == "how many"
-    assert question['index'] == "requests"
-    assert question['delta'] == "since 2015-07-07"
-    assert question['where'] == "researched"
-    assert question['group_by'] == "user/yPyA5n7P"
-
-    question = TransformQuestion.transform(grammar_builder, test_question_3,
-        just_parse=True)
-
-    print question
-    # {'field': 'total_length', 'metric': 'sum', 'delta': 'since friday', 'where': 'released', 'index': 'albums'}
-    assert question['metric'] == 'sum'
-    assert question['index'] == 'albums'
-    assert question['delta'] == 'since friday'
-    assert question['field'] == 'total_length'
-    assert question['where'] == 'released'
-
-def test_transform():
-    grammar_builder = GrammarBuilder()
-
-    terms_map = {
-        'researched': '!needs_license_research',
-        'requests': 'researched_by',
-        '*default_date_field': 'license_fulfilled_at',
-        "r'user\/[a-zA-Z0-9]+'": "researched_by"
-    }
-
-    # sum of albums sold since friday
-    """
-        {
-            'metric': 'sum',
-            'index': 'albums',
-            'field': 'total_length'
-            'delta': 'since friday',
-        }
-
-
-    metric field delta where group_by
-    sum the total length of albums released since friday
-    metric field
-
-    """
-
-    terms_map = {
+terms_map = {
         'albums': {
             'index': 'rdalbum_production',
             'field': {
@@ -153,8 +102,44 @@ def test_transform():
         }
     }
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_1,
-        terms_map=terms_map, return_parsed_question=True)
+grammar_builder = GrammarBuilder()
+
+def test_parse():
+    transform_result = TransformQuestion.transform(grammar_builder,
+        test_question_1, terms_map)
+    assert transform_result.get('parsed_question', False)
+    question = transform_result['parsed_question']
+
+    print question
+    print test_question_1
+
+    assert question['metric'] == "how many"
+    assert question['index'] == "requests"
+    assert question['delta'] == "since 2015-07-07"
+    assert question['where'] == "researched"
+    assert question['group_by'] == "user/yPyA5n7P"
+
+    transform_result = TransformQuestion.transform(grammar_builder,
+        test_question_3, terms_map)
+    assert transform_result.get('parsed_question', False)
+    question = transform_result['parsed_question']
+
+    print question
+    # {'field': 'total_length', 'metric': 'sum', 'delta': 'since friday', 'where': 'released', 'index': 'albums'}
+    assert question['metric'] == 'sum'
+    assert question['index'] == 'albums'
+    assert question['delta'] == 'since friday'
+    assert question['field'] == 'total_length'
+    assert question['where'] == 'released'
+
+def test_transform_question_1():
+
+    transform_result = TransformQuestion.transform(grammar_builder,
+        test_question_1,
+        terms_map=terms_map)
+
+    query = transform_result['q']
+    question = transform_result['parsed_question']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -168,8 +153,12 @@ def test_transform():
     assert question['where'] == "researched"
     assert question['group_by'] == "user/yPyA5n7P"
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_2,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_2():
+    result = TransformQuestion.transform(grammar_builder,
+        test_question_2, terms_map=terms_map)
+
+    query = result['q']
+    question = result['parsed_question']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -182,40 +171,53 @@ def test_transform():
     assert question['where'] == "researched"
     assert question['group_by'] == "researched_by"
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_3,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_3():
+    result = TransformQuestion.transform(grammar_builder,
+        test_question_3, terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_3
     print json_query
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_4,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_4():
+    result = TransformQuestion.transform(grammar_builder, test_question_4,
+        terms_map=terms_map)
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_4
     print json_query
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_5,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_5():
+    result = TransformQuestion.transform(grammar_builder, test_question_5,
+        terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_5
     print json_query
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_6,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_6():
+    result = TransformQuestion.transform(grammar_builder, test_question_6,
+        terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_6
     print json_query
 
-    query = TransformQuestion.transform(grammar_builder, test_question_7,
+def test_transform_question_7():
+    result = TransformQuestion.transform(grammar_builder, test_question_7,
         terms_map=terms_map)
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -223,8 +225,11 @@ def test_transform():
     print json_query
 
 
-    query = TransformQuestion.transform(grammar_builder, test_question_8,
+def test_transform_question_8():
+    result = TransformQuestion.transform(grammar_builder, test_question_8,
         terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -232,8 +237,11 @@ def test_transform():
     print json_query
 
 
-    query = TransformQuestion.transform(grammar_builder, test_question_9,
+def test_transform_question_9():
+    result = TransformQuestion.transform(grammar_builder, test_question_9,
         terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -241,8 +249,10 @@ def test_transform():
     print json_query
 
 
-    query = TransformQuestion.transform(grammar_builder, test_question_10,
+def test_transform_question_10():
+    result = TransformQuestion.transform(grammar_builder, test_question_10,
         terms_map=terms_map)
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -250,16 +260,22 @@ def test_transform():
     print json_query
 
 
-    query = TransformQuestion.transform(grammar_builder, test_question_11,
+def test_transform_question_11():
+    result = TransformQuestion.transform(grammar_builder, test_question_11,
         terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_11
     print json_query
 
-    query = TransformQuestion.transform(grammar_builder, test_question_12,
+def test_transform_question_12():
+    result = TransformQuestion.transform(grammar_builder, test_question_12,
         terms_map=terms_map)
+
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
@@ -267,12 +283,12 @@ def test_transform():
     print json_query
 
 
-    query, question = TransformQuestion.transform(grammar_builder, test_question_13,
-        terms_map=terms_map, return_parsed_question=True)
+def test_transform_question_13():
+    result = TransformQuestion.transform(grammar_builder,
+        test_question_13, terms_map=terms_map)
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query
     print test_question_13
     print json_query
-    print question
-    assert False
