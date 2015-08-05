@@ -229,8 +229,8 @@ class TransformQuestion(object):
             "q": q,
             "question": text,
             "parsed_question": question,
-            "indicies": terms_map.get('index', None),
-            "chart_types": ["table", "bar"]
+            "indices": terms_map.get('index', None),
+            "chart_types": []
         }
 
         return results
