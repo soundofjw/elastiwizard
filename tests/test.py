@@ -42,6 +42,10 @@ test_question_13 = """
     how many usages fulfilled by completed_license_methods since 2015-07-07
 """
 
+test_question_14 = """
+    how many requests researched by researched_by each day
+"""
+
 terms_map = {
         'albums': {
             'index': 'rdalbum_production',
@@ -298,3 +302,15 @@ def test_transform_question_13():
     assert json_query
     print test_question_13
     print json_query
+
+def test_transform_question_14():
+    result = TransformQuestion.transform(grammar_builder,
+        test_question_14, terms_map=terms_map)
+    query = result['q']
+
+
+    json_query = json.dumps(query, indent=4, sort_keys=True)
+    assert json_query
+    print result['parsed_question']
+    print json_query
+    assert False
