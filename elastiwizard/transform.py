@@ -1,6 +1,7 @@
 from parser import ElastiwizardParser
 from grammar import GrammarBuilder
 from query import SearchAggregationBuilder
+import tools
 
 import types
 import datetime
@@ -67,7 +68,7 @@ class TransformQuestion(object):
 
         if 'from' in delta_string:
             date_string = _get_substr_by_term(delta_string, 'from')
-            from_date = datetime.datetime.strptime(date_string, dateformat).date()
+            from_date = tools.get_date_from_string(date_string)
         else:
             # default to 6 months
             if interval == 'year':
@@ -84,7 +85,7 @@ class TransformQuestion(object):
 
         if 'to' in delta_string:
             date_string = _get_substr_by_term(delta_string, 'to')
-            to_date = datetime.datetime.strptime(date_string, dateformat).date()
+            to_date = tools.get_date_from_string(date_string)
         else:
             to_date = datetime.datetime.now().date()
 
