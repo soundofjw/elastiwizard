@@ -15,10 +15,10 @@ To:
 ```json
 
 {
-    'query': {
-        'match_all': {}
+    "query": {
+        "match_all": {}
     },
-    'aggs': {
+    "aggs": {
 
     }
 }
