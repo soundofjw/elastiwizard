@@ -6,10 +6,10 @@ class GrammarBuilder(object):
        question = metric space (the space field space of space)? (index) (space where)? (space by space group_by)? (space delta)?
 
         space = ~"\s*"
-        string = ~"[A-z,]"
+        string = ~"[A-z,/]"
         number = ~"[0-9]"
-        date = ~"[A-z0-9,.'-/]"
-        value = (string / number / date)
+        date = ~"[A-z0-9,. '-/]"
+        value = (string / number)
 
         metric = "count" / "how many" / "sum" / "average" / "max" / "min" / "best" / "worst"
         index = string*

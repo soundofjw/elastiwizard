@@ -50,6 +50,10 @@ test_question_15 = """
     sum the gross,service of orders affiliated by affiliate
 """
 
+test_question_16 = """
+    how many posts published since 07/01/2015
+"""
+
 terms_map = {
         'orders': {
             'field': {
@@ -70,6 +74,15 @@ terms_map = {
                 },
                 'product': {
                     'field': 'product_keys'
+                },
+                'complete': {
+                    'filters:': 'complete'
+                },
+                'refunded': {
+                    'filters': 'refunded'
+                },
+                'gift': {
+                    'filters': 'is_gift'
                 }
             },
             'delta': {
@@ -352,4 +365,13 @@ def test_transform_question_15():
     assert json_query
     print result['parsed_question']
     print json_query
-    assert False
+
+def test_transform_question_16():
+    result = TransformQuestion.transform(grammar_builder,
+            test_question_16, terms_map=terms_map)
+    query = result['q']
+
+    json_query = json.dumps(query, indent=4, sort_keys=True)
+    assert json_query
+    print result['parsed_question']
+    print json_query

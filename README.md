@@ -8,18 +8,37 @@ Elastiwizard is a simple parser that gives you the ability to translate question
 
 Go from this:
 
-``` how many posts published since July 1st 2015```
+``` how many posts published since 07/01/2015```
 
 To:
 
 ```json
 
 {
+    "aggs": {
+        "post_stats": {
+            "date_range": {
+                "field": "published_at",
+                "format": "MM-d-yyyy",
+                "ranges": [
+                    {
+                        "from": "now-9w/w" // today being 09/01/2015
+                    }
+                ]
+            }
+        }
+    },
     "query": {
         "match_all": {}
     },
-    "aggs": {
-
-    }
+    "size": 20,
+    "sort": [
+        {
+            "_score": {
+                "ignore_unmapped": "true",
+                "order": "desc"
+            }
+        }
+    ]
 }
 ```

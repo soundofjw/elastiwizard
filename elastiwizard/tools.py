@@ -5,10 +5,12 @@ def get_date_from_string(string):
         "%d-%m-%Y",
         "%Y-%m-%d",
         "%m/%d/%y",
+        "%m/%d/%Y",
         "%b %d, %Y",
         "%b %d, %y",
         "%B %d, %Y",
         "%B %d, %y",
+        "%B %d %y",
         "%B %d",
         "%b %d",
         ]

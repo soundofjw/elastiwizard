@@ -94,8 +94,7 @@ class TransformQuestion(object):
             if date_string in WEEKDAYS:
                 from_date = find_date(date_string)
             else:
-                from_date = datetime.datetime.strptime(
-                    date_string, dateformat).date()
+                from_date = tools.get_date_from_string(date_string)
 
         if not date_field:
             try:
@@ -208,7 +207,7 @@ class TransformQuestion(object):
         transformer = cls(grammar, terms_map)
         question = transformer.parse(text)
         # update terms map to index
-        transformer.terms_map = terms_map[question['index']]
+        transformer.terms_map = terms_map.get(question['index'], {})
 
         options = {}
 
