@@ -159,8 +159,15 @@ class TransformQuestion(object):
 
         field_map = self.terms_map.get('field', {})
 
-        if metric_field and metric_field in field_map.keys():
-            metric_field = field_map.get(metric_field)
+        if metric_field:
+            mf = metric_field.split(',')
+            metric_field_list = []
+            for f in mf:
+                if f in field_map.keys():
+                    metric_field_list.append(field_map.get(f))
+                else:
+                    metric_field_list.append(f)
+            metric_field = ",".join(metric_field_list)
         elif not metric_field:
             metric_field = field_map.get('default', 'title')
 
@@ -187,7 +194,6 @@ class TransformQuestion(object):
                     break
                 elif group_by_string == k:
                     filter_dict = {
-                        group_by_map[k]: group_by_string
                     }
                     group_by_string = group_by_map[k]
                     break

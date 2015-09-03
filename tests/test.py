@@ -46,7 +46,36 @@ test_question_14 = """
     how many requests researched by researched_by each day
 """
 
+test_question_15 = """
+    sum the gross,service of orders affiliated by affiliate
+"""
+
 terms_map = {
+        'orders': {
+            'field': {
+                'default': "affiliate_code",
+                'gross': 'gross_amount',
+                'service': 'service_amount',
+                'affiliate': 'affiliate_code'
+            },
+            'index': 'order',
+            'group_by': {
+                'gross': 'gross_amount',
+                'service': 'service_amount',
+                'affiliate': 'affiliate_code'
+            },
+            'where': {
+                'affiliated': {
+                    'filters': 'has_affiliate'
+                },
+                'product': {
+                    'field': 'product_keys'
+                }
+            },
+            'delta': {
+                'date_field': 'created_at'
+            }
+        },
         'albums': {
             'index': 'rdalbum_production',
             'field': {
@@ -308,6 +337,16 @@ def test_transform_question_14():
         test_question_14, terms_map=terms_map)
     query = result['q']
 
+
+    json_query = json.dumps(query, indent=4, sort_keys=True)
+    assert json_query
+    print result['parsed_question']
+    print json_query
+
+def test_transform_question_15():
+    result = TransformQuestion.transform(grammar_builder,
+            test_question_15, terms_map=terms_map)
+    query = result['q']
 
     json_query = json.dumps(query, indent=4, sort_keys=True)
     assert json_query

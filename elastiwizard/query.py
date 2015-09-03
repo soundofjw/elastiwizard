@@ -442,15 +442,23 @@ class SearchAggregationBuilder(SearchQueryBuilder):
         return filter_dict
 
 
-    def update_agg(self, agg_dict, new_agg, new_agg_name, do_nest):
+    def update_agg(self, agg_dict, new_agg, new_agg_name, do_nest,
+        is_tuple_list=False):
         """
         Updates aggregation with newly created aggregation
         Will nest if necessary
         """
         if do_nest:
-            agg_dict['aggs'] = {
-              new_agg_name: new_agg
-            }
+            if is_tuple_list:
+                agg_dict['aggs'] = {}
+                for agg_name, agg_d in new_agg:
+                    agg_dict['aggs'].update({
+                      agg_name: agg_d
+                    })
+            else:
+                agg_dict['aggs'] = {
+                  new_agg_name: new_agg
+                }
             agg_dict = agg_dict['aggs'][new_agg_name]
         else:
             agg_dict.update(new_agg)
@@ -468,13 +476,6 @@ class SearchAggregationBuilder(SearchQueryBuilder):
         agg_dict = parent_agg_dict[name]
         do_nest = False
 
-        metric_dict = self.build_metric(metric, field)
-
-        if metric_dict:
-            agg_name = "%s_%s" % (metric, field)
-            agg_dict = self.update_agg(agg_dict, metric_dict, agg_name, do_nest)
-            if not do_nest:
-                do_nest = True
 
         for filter_key, filter_value in filters.iteritems():
             filter_dict = self.build_filter_dict(filter_key, filter_value)
@@ -482,7 +483,6 @@ class SearchAggregationBuilder(SearchQueryBuilder):
             agg_dict = self.update_agg(agg_dict, filter_dict, agg_name, do_nest)
             if not do_nest:
                 do_nest = True
-
 
         if terms:
             term_dict = self.build_terms(terms)
@@ -495,6 +495,20 @@ class SearchAggregationBuilder(SearchQueryBuilder):
             delta_agg_dict, delta_type = self.build_from_delta_dict(delta)
             agg_name = "da_%s" % (delta_type)
             self.update_agg(agg_dict, delta_agg_dict, agg_name, do_nest)
+
+        metric_dict_list = []
+        field_list = field.split(',')
+        for i, field in enumerate(field_list):
+            metric_dict = self.build_metric(metric, field.strip())
+            if metric_dict:
+                agg_name = "%s_%s" % (metric, field)
+                metric_dict_list.append((agg_name, metric_dict))
+
+        if metric_dict_list:
+            agg_dict = self.update_agg(agg_dict, metric_dict_list,
+                metric_dict_list[0][0], do_nest, is_tuple_list=True)
+            if not do_nest:
+                do_nest = True
 
         return {'aggs': parent_agg_dict}
 
