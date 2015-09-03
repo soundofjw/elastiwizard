@@ -54,6 +54,10 @@ test_question_16 = """
     how many posts published since 07/01/2015
 """
 
+test_question_17 = """
+    sum the gross_amount of orders
+"""
+
 terms_map = {
         'orders': {
             'field': {
@@ -375,3 +379,14 @@ def test_transform_question_16():
     assert json_query
     print result['parsed_question']
     print json_query
+
+def test_transform_question_17():
+    result = TransformQuestion.transform(grammar_builder,
+            test_question_17, terms_map=terms_map)
+    query = result['q']
+
+    json_query = json.dumps(query, indent=4, sort_keys=True)
+    assert json_query
+    print result['parsed_question']
+    print json_query
+    assert False

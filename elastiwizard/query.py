@@ -461,7 +461,11 @@ class SearchAggregationBuilder(SearchQueryBuilder):
                 }
             agg_dict = agg_dict['aggs'][new_agg_name]
         else:
-            agg_dict.update(new_agg)
+            if is_tuple_list:
+                for _, agg_d in new_agg:
+                    agg_dict.update(agg_d)
+            else:
+                agg_dict.update(new_agg)
 
         return agg_dict
 
