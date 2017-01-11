@@ -141,14 +141,14 @@ class SearchQueryBuilder(object):
             sort_filter = {
                 order_string: {
                     'order': 'desc',
-                    'ignore_unmapped': 'true'
+                    'unmapped_type': 'long'
                 }
             }
         else:
             sort_filter = {
                 order_string: {
                     'order': 'asc',
-                    'ignore_unmapped': 'true'
+                    'unmapped_type': 'long'
                 }
             }
 
